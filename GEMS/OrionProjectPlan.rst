@@ -58,7 +58,7 @@ swept-up molecular material that composes the OMC1 Core.
 Projects with the GSAOI and Altair data
 ---------------------------------------
 
-# Proper motion and line-of-sight measurement of the H2 ejecta
+ #. Proper motion and line-of-sight measurement of the H2 ejecta
 
   * Direct constraints on instantaneous energetics (shock speed)
   * Clues towards total energy ejected
@@ -69,7 +69,7 @@ Projects with the GSAOI and Altair data
     * How much energy was involved in the Event?
     * What effect has the explosion had / will it have on the Core?
 
-# Shock Physics (with Pat Hartigan?)
+ #. Shock Physics (with Pat Hartigan?)
  
   * What are the excitation conditions in the shock knots?
   * Are there reverse shocks?
@@ -77,10 +77,10 @@ Projects with the GSAOI and Altair data
     extinction, or are some of the ejecta faster?
   * If there are faster ejecta, *why*?  What is driving them?
 
-# Binarity & proper motion measurements of stars.  (with H. Bouy, J. Kolb et al?)
-  These measurements are suitable for an undergraduate project:
-  The student would Measure the centroids of all stars common to the Altair and
-  GEMS images.
+ #. Binarity & proper motion measurements of stars.  (with H. Bouy, J. Kolb et al?)
+   These measurements are suitable for an undergraduate project:
+   The student would Measure the centroids of all stars common to the Altair and
+   GEMS images.
 
      * This requires precise measurements with accurate error bars, i.e. PSF
        fitting
@@ -98,7 +98,7 @@ Projects with the GSAOI and Altair data
      * What does the dynamical state tell us about the ONC properties?  i.e., its boundedness, its
        internal mass, and its future evolution.
 
-# Protostellar Systems 
+ #. Protostellar Systems 
 
      * We have found at least one new disk and one new Canto nozzle.
      * Are there any other new protostellar outflows?
