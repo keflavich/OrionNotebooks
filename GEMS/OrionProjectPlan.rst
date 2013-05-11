@@ -30,7 +30,6 @@ there are promising theories to describe them.
 Our Observations
 ----------------
 
-
 We have imaged the Orion BN/KL nebula in the emission lines of H2 at 2.12
 microns and Fe II at 1.64 microns with Gemini Altair and GEMS/GSAOI adaptive
 optics imaging programs over the course of the past five years.  Additionally
