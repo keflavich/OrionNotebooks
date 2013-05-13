@@ -51,7 +51,7 @@ os.system(cmdstr)
 print cmdstr
 #montage georg20130228S015[13456].fits --outfile=fe_montage_georgs_southeast.fits --combine=median --header=gemsoutheast.hdr &
 
-outfilenames = rescale(glob.glob('georg20130228S014[5789].fits')+['georg20130228S0150.fits'],cutoff=500, q4cut=300, q3cut=524, q1add=25, q4add=-75)
+outfilenames = rescale(glob.glob('georg20130228S014[789].fits')+['georg20130228S0150.fits'],cutoff=500, q4cut=300, q3cut=524, q1add=25, q4add=-75)
 cmdstr = "montage %s --outfile=ks_montage_georgs_southeast.fits --combine=median --header=gemsoutheast.hdr" % (" ".join(outfilenames))
 os.system(cmdstr)
 print cmdstr

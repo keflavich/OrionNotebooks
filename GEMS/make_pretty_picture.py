@@ -66,14 +66,35 @@ if not 'fe' in locals():
         h2f.writeto("big_mosaic_h2_normed.fits",clobber=True)
     # too big h2smooth = AG_fft_tools.smooth(h2,100,ignore_nan=True)
     ks = pyfits.getdata('big_mosaic_ks.fits')
-    ha = pyfits.getdata('HST_ACS_F658n_bigGEMS.fits')
+    haf = pyfits.open('HST_ACS_F658n_bigGEMS.fits')
+    ha = haf[0].data
+    if os.path.exists('big_mosaic_ha_unsharp.fits'):
+        haunsharp = pyfits.getdata('big_mosaic_ha_unsharp.fits')
+        hanormed = pyfits.getdata('big_mosaic_ha_normed.fits')
+    else:
+        #kernel = astropy.nddata.convolution.make_kernel.make_kernel([151,151],kernelwidth=50)
+        #hasmooth = astropy.nddata.convolve(ha,kernel)
+        hasmooth = agpy.smooth(mask_image(ha,downsample=4),250, fft_pad=False,
+                interpolate_nan=True, psf_pad=False, ignore_edge_zeros=True,
+                normalize_kernel=True, use_numpy_fft=True, nthreads=1,
+                use_rfft=True, complextype=np.float32, silent=False,
+                boundary='fill')
+        haunsharp = ha
+        for ii in xrange(4):
+            for jj in xrange(4):
+                shape = haunsharp[ii::4,jj::4].shape
+                haunsharp[ii::4,jj::4] -= hasmooth[:shape[0],:shape[1]]
+        haf[0].data = haunsharp
+        haf.writeto("big_mosaic_ha_unsharp.fits",clobber=True)
+        hanormed = ha
+        for ii in xrange(4):
+            for jj in xrange(4):
+                shape = hanormed[ii::4,jj::4].shape
+                hanormed[ii::4,jj::4] /= hasmooth[:shape[0],:shape[1]]
+        haf[0].data = hanormed
+        haf.writeto("big_mosaic_ha_normed.fits",clobber=True)
 
 import resource
-from guppy import hpy
-heapy = hpy()
-print "Memory check: ",resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.**3
-memtot = heapy.heap().size / 1024.0**3
-print "Memory check (guppy): ",memtot,'GB'
 print "Memory Check (ps): ",get_mem()/1024.**3
 
 import numpy as np
@@ -141,9 +162,6 @@ for h2x,fex,ksx,txt in ((h2normed,fenormed,ks,"normed_"),(h2,fe,ks,""),(h2unshar
     for downsample,size in ((4,'small'),(1,'large')):
 
         print "Downsample: ",downsample," size: ",size," style: ",txt
-        print "Memory check: ",resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.**3
-        memtot = heapy.heap().size / 1024.0**3
-        print "Memory check (guppy): ",memtot,'GB'
         print "Memory Check (ps): ",get_mem()/1024.**3
 
         shape = h2x[::downsample,::downsample].shape
@@ -191,9 +209,6 @@ for h2x,fex,ksx,txt in ((h2normed,fenormed,ks,"normed_"),(h2,fe,ks,""),(h2unshar
         #kss_red = hsv_to_rgb(kss_hsv)
 
         print "Downsample: ",downsample," size: ",size," style: ",txt
-        print "Memory check: ",resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.**3
-        memtot = heapy.heap().size / 1024.0**3
-        print "Memory check (guppy): ",memtot,'GB'
         print "Memory Check (ps): ",get_mem()/1024.**3
 
         redblueorange = kss_red+h2s_orange+fes_blue
@@ -206,9 +221,6 @@ for h2x,fex,ksx,txt in ((h2normed,fenormed,ks,"normed_"),(h2,fe,ks,""),(h2unshar
         im.save(prefix+'Trapezium_GEMS_mosaic_redblueorange_%s%s_contrast_bright.png' % (txt,size))
 
         print "Downsample: ",downsample," size: ",size," style: ",txt
-        print "Memory check: ",resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.**3
-        memtot = heapy.heap().size / 1024.0**3
-        print "Memory check (guppy): ",memtot,'GB'
         print "Memory Check (ps): ",get_mem()/1024.**3
 
         output = prefix+'Trapezium_GEMS_mosaic_redblueorange_%s%s.png' % (txt,size)
@@ -218,12 +230,103 @@ for h2x,fex,ksx,txt in ((h2normed,fenormed,ks,"normed_"),(h2,fe,ks,""),(h2unshar
         output = prefix+'Trapezium_GEMS_mosaic_redblueorange_%s%s_contrast_bright.png' % (txt,size)
         avm.embed(output, output)
 
-smallshape = ks[::4,::4].shape
-rgb_ha_float = np.ones([smallshape[0],smallshape[1],3],dtype='float')
-rgb_ha_float[:,:,2] = logscale(ha[::4,::4],xmin=hamin,xmax=hamax,logexp=logii,toint=False)
-rgb_ha_float[:,:,0] = logscale(h2[::4,::4],xmin=h2min,xmax=h2max,logexp=logii,toint=False)
-rgb_ha_float[:,:,1] = logscale(fe[::4,::4],xmin=femin,xmax=femax,logexp=logii,toint=False)
-rgb_ha_float[rgb_ha_float!=rgb_ha_float] = 0
-im = PIL.Image.fromarray((rgb_ha_float*255).astype('uint8')[::-1,:])
-im.save(prefix+'TrapeziumHA_GEMS_mosaic_test.png')
-#hsv_small = rgb_to_hsv(rgb_ha_float[:,:,:3])
+#smallshape = ks[::4,::4].shape
+#rgb_ha_float = np.ones([smallshape[0],smallshape[1],3],dtype='float')
+#rgb_ha_float[:,:,2] = logscale(ha[::4,::4],xmin=hamin,xmax=hamax,logexp=logii,toint=False)
+#rgb_ha_float[:,:,0] = logscale(h2[::4,::4],xmin=h2min,xmax=h2max,logexp=logii,toint=False)
+#rgb_ha_float[:,:,1] = logscale(fe[::4,::4],xmin=femin,xmax=femax,logexp=logii,toint=False)
+#rgb_ha_float[rgb_ha_float!=rgb_ha_float] = 0
+#im = PIL.Image.fromarray((rgb_ha_float*255).astype('uint8')[::-1,:])
+#im.save(prefix+'TrapeziumHA_GEMS_mosaic_test.png')
+##hsv_small = rgb_to_hsv(rgb_ha_float[:,:,:3])
+
+
+for h2x,fex,hax,txt in ((h2normed,fenormed,hanormed,"normed_"),(h2,fe,ha,""),(h2unsharp,feunsharp,haunsharp,"unsharp_")):
+    for downsample,size in ((4,'small'),(1,'large')):
+
+        print "Downsample: ",downsample," size: ",size," style: ",txt
+        print "Memory Check (ps): ",get_mem()/1024.**3
+
+        shape = h2x[::downsample,::downsample].shape
+        h2s = np.zeros([shape[0],shape[1],3],dtype='float')
+        if txt == "normed_":
+            minv = -0.15
+            maxv = 1
+            logii = None
+        elif txt is not '':
+            minv = -250 #-20
+            maxv = 1250 #h2max
+            logii = 1
+        else:
+            minv = h2min
+            maxv = h2max
+            logii = 1
+        h2s[:,:,0] = logscale(h2x[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
+        h2s_hsv = rgb_to_hsv(h2s)
+        h2s_hsv[:,:,0] = 15/360.
+        h2s_orange = hsv_to_rgb(h2s_hsv)
+
+        if txt == "normed_":
+            minv = -0.15
+            maxv = 1.0
+            logii = None
+        elif txt is not '':
+            minv = -300#-20
+            maxv =  300#femax
+            logii = 1
+        else:
+            minv = femin
+            maxv = femax
+            logii = 1
+        fes = np.zeros([shape[0],shape[1],3],dtype='float')
+        fes[:,:,0] = logscale(fex[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
+        fes_hsv = rgb_to_hsv(fes)
+        fes_hsv[:,:,0] = 120/360.
+        fes_green = hsv_to_rgb(fes_hsv)
+
+        if txt == "normed_":
+            minv = -0.15
+            maxv = 1.0
+            logii = None
+        elif txt is not '':
+            minv = -100#-20
+            maxv =  100#femax
+            logii = 1
+        else:
+            minv = hamin
+            maxv = hamax
+            logii = 1
+        has = np.zeros([shape[0],shape[1],3],dtype='float')
+        has[:,:,0] = logscale(hax[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
+        has_hsv = rgb_to_hsv(has)
+        has_hsv[:,:,0] = 240/360.
+        has_blue = hsv_to_rgb(has_hsv)
+
+        #has = np.zeros([shape[0],shape[1],3],dtype='float')
+        #has[:,:,0] = logscale(hax[::downsample,::downsample],xmin=hamin,xmax=hamax,logexp=logii,toint=False)
+        #has_red = has
+        #has_hsv = rgb_to_hsv(has)
+        #has_hsv[:,:,0] = 0/360.
+        #has_red = hsv_to_rgb(has_hsv)
+
+        print "Downsample: ",downsample," size: ",size," style: ",txt
+        print "Memory Check (ps): ",get_mem()/1024.**3
+
+        redblueorange = has_blue+h2s_orange+fes_green
+        redblueorange[redblueorange>1] = 1
+        im = PIL.Image.fromarray((redblueorange*255).astype('uint8')[::-1,:])
+        im.save(prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s.png' % (txt,size))
+        im = ImageEnhance.Contrast(im).enhance(1.5)
+        im.save(prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s_contrast.png' % (txt,size))
+        im = ImageEnhance.Brightness(im).enhance(1.5)
+        im.save(prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s_contrast_bright.png' % (txt,size))
+
+        print "Downsample: ",downsample," size: ",size," style: ",txt
+        print "Memory Check (ps): ",get_mem()/1024.**3
+
+        output = prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s.png' % (txt,size)
+        avm.embed(output, output)
+        output = prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s_contrast.png' % (txt,size)
+        avm.embed(output, output)
+        output = prefix+'TrapeziumHA_GEMS_mosaic_redblueorange_%s%s_contrast_bright.png' % (txt,size)
+        avm.embed(output, output)

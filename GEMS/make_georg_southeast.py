@@ -15,7 +15,7 @@ for nn in [30, 31, 33, 34, 35, ]:
         print "Failed for file rgsS20130228S01%02i.fits" % nn
         print E
 
-for nn in [51, 53, 54, 55, 56, 45, 46, 47, 48, 49, 50]:
+for nn in [51, 53, 54, 55, 56, 46, 47, 48, 49, 50]:
     try:
         iraf.images.imutil.imdel("georgS20130228S01%02i.fits" % nn, verify=False)
         my_geotran.my_geotran("rgS20130228S01%02i.fits" % nn,"georgS20130228S01%02i.fits" % nn)
