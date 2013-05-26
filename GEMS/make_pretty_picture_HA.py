@@ -137,6 +137,14 @@ def logscale(arr, logexp=3.0, toint=True, **kwargs):
     else:
         return logarr
 
+def expscale(arr, exp=2, toint=True, **kwargs):
+    linarr = linearize(arr, **kwargs)
+    if toint:
+        lla = linearize(linarr**exp)*255
+        return lla.astype('uint8')
+    else:
+        return linarr**exp
+
 
 # myshape=ks.shape
 # myslice = slice(None,None,None),slice(None,None,None)
@@ -160,7 +168,7 @@ logii=1
 
 
 
-for h2x,fex,hax,txt in ((h2normed,fenormed,hanormed,"normed_"),(h2,fe,ha,""),(h2unsharp,feunsharp,haunsharp,"unsharp_")):
+for h2x,fex,hax,txt in ((h2normed,fenormed,hanormed,"normed_"),): #(h2,fe,ha,""),(h2unsharp,feunsharp,haunsharp,"unsharp_")):
     for downsample,size in ((4,'small'),(1,'large')):
 
         print "Downsample: ",downsample," size: ",size," style: ",txt
@@ -170,7 +178,7 @@ for h2x,fex,hax,txt in ((h2normed,fenormed,hanormed,"normed_"),(h2,fe,ha,""),(h2
         h2s = np.zeros([shape[0],shape[1],3],dtype='float')
         if txt == "normed_":
             minv = -0.15
-            maxv = 1
+            maxv = 1.1
             logii = None
         elif txt is not '':
             minv = -250 #-20
@@ -200,25 +208,25 @@ for h2x,fex,hax,txt in ((h2normed,fenormed,hanormed,"normed_"),(h2,fe,ha,""),(h2
         fes = np.zeros([shape[0],shape[1],3],dtype='float')
         fes[:,:,0] = logscale(fex[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
         fes_hsv = rgb_to_hsv(fes)
-        fes_hsv[:,:,0] = 120/360.
+        fes_hsv[:,:,0] = 110/360.
         fes_green = hsv_to_rgb(fes_hsv)
 
         if txt == "normed_":
-            minv = -0.15
+            minv = -0.5
             maxv = 1.0
             logii = None
         elif txt is not '':
             minv = -100#-20
-            maxv =  100#femax
+            maxv =  100#hamax
             logii = 1
         else:
             minv = hamin
             maxv = hamax
             logii = 1
         has = np.zeros([shape[0],shape[1],3],dtype='float')
-        has[:,:,0] = logscale(hax[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
+        has[:,:,0] = expscale(hax[::downsample,::downsample],xmin=minv,xmax=maxv,toint=False)
         has_hsv = rgb_to_hsv(has)
-        has_hsv[:,:,0] = 240/360.
+        has_hsv[:,:,0] = 230/360.
         has_blue = hsv_to_rgb(has_hsv)
 
         #has = np.zeros([shape[0],shape[1],3],dtype='float')
