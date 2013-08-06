@@ -7,7 +7,7 @@ from astropy import wcs
 from agpy import cubes
 import pyspeckit
 import string
-import pyspeckitmodels.h2
+from molecular_hydrogen.h2 import linename_to_restwl
 
 sourceI = (196,130)
 outflow_endpoints = [(286,396),
@@ -121,7 +121,7 @@ def do_plots():
 
     for h2 in ['Q1','Q2','Q3','Q4','S1','S2','S3','S4','S5','S6']:
         linename = h2+" 1-0"
-        restwl = pyspeckitmodels.h2.linename_to_restwl(linename) * u.um
+        restwl = linename_to_restwl(linename) * u.um
         Orion_PVDiagrams('OMC1_TSPEC_H2%s_cube.fits' % h2,linename="H2 %s" % linename,
                          restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
                          min_valid=1e-17)
