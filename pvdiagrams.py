@@ -65,7 +65,7 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.12183
         ax.set_ylim(-200,200)
         if dosave and ii % 3 == 2 or ii == len(outflow_endpoints)-1:
             name = linename.replace(" ","_").replace("(","_").replace(")","_")
-            name = ''.join([l for l in name if l in (string.ascii_letters+string.digits+"_")])
+            name = ''.join([l for l in name if l in (string.ascii_letters+string.digits+"_-")])
             figname = name+"_%i.png" % fignum
             pl.savefig(figname.replace("__","_"))
 
