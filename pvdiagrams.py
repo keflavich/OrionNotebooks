@@ -23,7 +23,7 @@ outflow_endpoints = [(286,396),
                      (296,249),
                      (280,250)]
 
-def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*u.um, cm=pl.cm.hot,
+def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218313*u.um, cm=pl.cm.hot,
                      start_fignum=0, min_valid=1e-16, displaymax=None, hlcolor='k', linename='H2 S(1) 1-0',
                      dosave=True):
     cube = fits.getdata(filename)
@@ -47,7 +47,7 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*
         cdelt = np.abs(header['CDELT1'] / np.cos(angle)) * 3600
         npts = (dx**2 + dy**2)**0.5
         # pixels are in FITS units
-        pv = make_pv(endx=ex-1,endy=ey-1,startx=sourceI[0]-1,starty=sourceI[0]-1,npts=npts)
+        pv = make_pv(endx=ex-1,endy=ey-1,startx=sourceI[0]-1,starty=sourceI[1]-1,npts=npts)
         fignum = start_fignum+ii/3
         pl.figure(fignum)
         if ii % 3 == 0:
@@ -57,7 +57,7 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*
         pv[pv<0] = np.nanmin(pv)
         pv[pv<min_valid] = min_valid
         pl.imshow(np.log10(pv),extent=[0,npts*cdelt,vmin,vmax,],aspect=np.abs(cdelt)/20*(npts/100), cmap=cm,
-                  vmax=displaymax)
+                  vmax=displaymax, origin='lower')
         pl.hlines(0,0,npts*cdelt,color=hlcolor,linestyle='--')
         ax.set_xlabel("Offset (\")")
         ax.set_ylabel("Velocity (km s$^{-1}$)")
