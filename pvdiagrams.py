@@ -56,12 +56,13 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*
         vmin,vmax = velocity.min().value,velocity.max().value
         pv[pv<0] = np.nanmin(pv)
         pv[pv<min_valid] = min_valid
-        pl.imshow(np.log10(pv),extent=[0,npts*cdelt,vmin,vmax,],aspect=np.abs(cdelt)/20, cmap=cm,
+        pl.imshow(np.log10(pv),extent=[0,npts*cdelt,vmin,vmax,],aspect=np.abs(cdelt)/20*(npts/100), cmap=cm,
                   vmax=displaymax)
         pl.hlines(0,0,npts*cdelt,color=hlcolor,linestyle='--')
         ax.set_xlabel("Offset (\")")
         ax.set_ylabel("Velocity (km s$^{-1}$)")
         ax.set_title(linename+" Outflow Trace %i" % ii)
+        ax.set_ylim(-200,200)
         if dosave and ii % 3 == 2:
             name = linename.replace(" ","_").replace("(","_").replace(")","_")
             name = ''.join([l for l in name if l in (string.ascii_letters+string.digits+"_")])
@@ -116,10 +117,10 @@ def do_plots():
     hot = matplotlib.cm.hot
     hot.set_bad('k')
 
-    Orion_PVDiagrams(cm=hot,dosave=True,min_valid=1e-15)
+    Orion_PVDiagrams(cm=hot,dosave=True,min_valid=5e-15,displaymax=-10)
     Orion_PVDiagrams('OMC1_TSPEC_H2FeII1.64_cube.fits',linename="FeII 1.64",restwavelength=1.643998*u.um, start_fignum=3, cm=cool, hlcolor='k', min_valid=1e-17)
     Orion_PVDiagrams('OMC1_TSPEC_H2FeII1.60_cube.fits',linename="FeII 1.60",restwavelength=1.599909*u.um, start_fignum=6, cm=cool, hlcolor='k', min_valid=1e-17)
-    Orion_PVDiagrams('OMC1_TSPEC_H2BrG_cube.fits',     linename="BrG",      restwavelength=2.1661178*u.um, start_fignum=9, cm=hot, hlcolor='k', min_valid=1e-16)
+    Orion_PVDiagrams('OMC1_TSPEC_H2BrG_cube.fits',     linename="BrG",      restwavelength=2.1661178*u.um, start_fignum=9, cm=hot, hlcolor='k', min_valid=1e-15,displaymax=-11)
 
     for ii in range(9,15):
         restwl = (pyspeckit.models.hydrogen.rrl(4,ii-4)*u.GHz).to(u.um,u.spectral())
