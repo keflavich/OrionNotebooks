@@ -120,7 +120,7 @@ def do_plots():
                          min_valid=1e-17)
 
     for h2 in ['Q1','Q2','Q3','Q4','S1','S2','S3','S4','S5','S6']:
-        linename = h2+" 1-0"
+        linename = "%s(%s) 1-0" % tuple(h2)
         restwl = linename_to_restwl(linename) * u.um
         Orion_PVDiagrams('OMC1_TSPEC_H2%s_cube.fits' % h2,linename="H2 %s" % linename,
                          restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
