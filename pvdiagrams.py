@@ -18,7 +18,9 @@ outflow_endpoints = [(286,396),
                      (329,266),
                      (327,228),
                      (187,250),
-                     (163,363)]
+                     (163,363),
+                     (296,249),
+                     (280,250)]
 
 def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*u.um, cm=pl.cm.hot,
                      start_fignum=0, min_valid=1e-16, displaymax=None, hlcolor='k', linename='H2 S(1) 1-0',
@@ -62,7 +64,8 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*
         if dosave and ii % 3 == 2:
             name = linename.replace(" ","_").replace("(","_").replace(")","_")
             name = ''.join([l for l in name if l in (string.ascii_letters+string.digits+"_")])
-            pl.savefig(name+"_%i.png" % fignum)
+            figname = name+"_%i.png" % fignum
+            pl.savefig(figname.replace("__","_"))
 
         #new_yticks = {i:velocity[i] for i in ax.get_yticks() if i>=0 and i<len(velocity)}
         #for v in new_yticks.values():
@@ -88,18 +91,22 @@ def make_regions(filename='OMC1_TSPEC_H2S1_cube.fits'):
     header = fits.getheader(filename)
 
     with open('outflow_traces_pixels.reg','w') as f:
+        print >>f,'global color=white dashlist=8 3 width=1 font="helvetica 14 bold roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'
         print >>f,'image'
         for ii,(ex,ey) in enumerate(outflow_endpoints):
-            print >>f,'line(%i,%i,%i,%i) # text={%i}' % (sourceI[0],sourceI[1],ex,ey,ii)
+            print >>f,'line(%i,%i,%i,%i)' % (sourceI[0],sourceI[1],ex,ey)
+            print >>f,' # text(%f,%f) text={%i}' % (ex,ey,ii)
 
     w = wcs.WCS(cubes.flatten_header(header))
     
     with open('outflow_traces_fk5.reg','w') as f:
+        print >>f,'global color=white dashlist=8 3 width=1 font="helvetica 14 bold roman" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1'
         print >>f,'fk5'
         raI,decI = w.wcs_pix2world(np.array([sourceI],dtype='float'),1)[0]
         for ii,(ex,ey) in enumerate(outflow_endpoints):
             ra,dec = w.wcs_pix2world(np.array([[ex,ey]],dtype='float'),1)[0]
-            print >>f,'line(%f,%f,%f,%f) # text={%i}' % (raI,decI,ra,dec,ii)
+            print >>f,'line(%f,%f,%f,%f)' % (raI,decI,ra,dec)
+            print >>f,' # text(%f,%f) text={%i}' % (ra,dec,ii)
 
 def do_plots():
 
@@ -115,13 +122,17 @@ def do_plots():
 
     for ii in range(9,15):
         restwl = (pyspeckit.models.hydrogen.rrl(4,ii-4)*u.GHz).to(u.um,u.spectral())
-        Orion_PVDiagrams('OMC1_TSPEC_H2Br%i_cube.fits' % ii,linename="Br%i" %
-                         ii,restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
-                         min_valid=1e-17)
+        filename = 'OMC1_TSPEC_H2Br%i_cube.fits' % ii
+        if os.path.exists(filename):
+            Orion_PVDiagrams(filename,linename="Br%i" %
+                             ii,restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
+                             min_valid=1e-17)
 
     for h2 in ['Q1','Q2','Q3','Q4','S1','S2','S3','S4','S5','S6']:
         linename = "%s(%s) 1-0" % tuple(h2)
         restwl = linename_to_restwl(linename) * u.um
-        Orion_PVDiagrams('OMC1_TSPEC_H2%s_cube.fits' % h2,linename="H2 %s" % linename,
-                         restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
-                         min_valid=1e-17)
+        filename = 'OMC1_TSPEC_H2%s_cube.fits' % h2
+        if os.path.exists(filename):
+            Orion_PVDiagrams(filename,linename="H2 %s" % linename,
+                             restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
+                             min_valid=1e-17)
