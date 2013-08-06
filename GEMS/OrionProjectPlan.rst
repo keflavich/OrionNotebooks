@@ -102,3 +102,12 @@ Projects with the GSAOI and Altair data
      * We have found at least one new disk and one new Canto nozzle.
      * Are there any other new protostellar outflows?
      
+     
+ 5. Evaluate competing models of the outflow directly
+     * Bally 2008, 2011
+     * Rodriguez 2005, Gomez 2005 (same as Bally?)
+     * Tan 2005, 2013
+     * Goddi (same as Bally?)     
+     * Beuther 2008
+
+.. TODO:: talk to Nathan
