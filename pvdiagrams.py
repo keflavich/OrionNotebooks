@@ -8,6 +8,7 @@ from agpy import cubes
 import pyspeckit
 import string
 from molecular_hydrogen.h2 import linename_to_restwl
+import os
 
 sourceI = (196,130)
 outflow_endpoints = [(286,396),
@@ -55,8 +56,8 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.1218*
         vmin,vmax = velocity.min().value,velocity.max().value
         pv[pv<0] = np.nanmin(pv)
         pv[pv<min_valid] = min_valid
-        pl.imshow(np.log10(pv),extent=[0,npts*cdelt,vmin,vmax,],aspect=np.abs(cdelt)/20, cmap=cm, 
-                vmax=displaymax)
+        pl.imshow(np.log10(pv),extent=[0,npts*cdelt,vmin,vmax,],aspect=np.abs(cdelt)/20, cmap=cm,
+                  vmax=displaymax)
         pl.hlines(0,0,npts*cdelt,color=hlcolor,linestyle='--')
         ax.set_xlabel("Offset (\")")
         ax.set_ylabel("Velocity (km s$^{-1}$)")
