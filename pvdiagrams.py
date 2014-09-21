@@ -63,6 +63,8 @@ def Orion_PVDiagrams(filename='OMC1_TSPEC_H2S1_cube.fits',restwavelength=2.12183
         ax.set_ylabel("Velocity (km s$^{-1}$)")
         ax.set_title(linename+" Outflow Trace %i" % ii)
         ax.set_ylim(-200,200)
+
+
         if dosave and ii % 3 == 2 or ii == len(outflow_endpoints)-1:
             name = linename.replace(" ","_").replace("(","_").replace(")","_")
             name = ''.join([l for l in name if l in (string.ascii_letters+string.digits+"_-")])
@@ -130,7 +132,7 @@ def do_plots():
                              ii,restwavelength=restwl, start_fignum=0, cm=hot, hlcolor='k',
                              min_valid=1e-17)
 
-    for h2 in ['Q1','Q2','Q3','Q4','S1','S2','S3','S4','S5','S6']:
+    for h2 in ['Q1','Q2','Q3','Q4','S2','S3','S4','S5','S6']:
         linename = "%s(%s) 1-0" % tuple(h2)
         restwl = linename_to_restwl(linename) * u.um
         filename = 'OMC1_TSPEC_H2%s_cube.fits' % h2
