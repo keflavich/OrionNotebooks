@@ -35,7 +35,7 @@ supercube = newcube[sortvect, :, :]
 pxarr = pyspeckit.units.SpectroscopicAxis(sortspaxis.value, units='km/s')
 pcube = pyspeckit.Cube(cube=supercube, xarr=pxarr)
 
-pcube.fiteach(fittype='gaussian', guesses=[1/np.sqrt(np.pi), -55, 20.0],
+pcube.fiteach(fittype='gaussian', guesses=[1/np.sqrt(np.pi), 35, 20.0],
               errmap=np.ones(supercube.shape[1:])/100., multicore=40)
 
 pcube.write_fit('velocity_fits.fits', clobber=True)
