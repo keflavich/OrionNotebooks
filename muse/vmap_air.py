@@ -9,8 +9,9 @@ cube._data -= cont
 
 # Header says AWAV: air wavelengths.  It also says the coordinates are barycentric.
 # V_LSR = V_helio - 18 km/s according to Garcia-Diaz et al 2008
-wavelengths = np.array([6302.046,  6313.8,  6365.536, 6549.85, 6564.61,
-                        6585.28, 6679.99556,  6718.29, 6732.67])*u.AA
+wavelengths = spectral_cube.spectral_axis.vac_to_air(np.array([6302.046,
+    6313.8,  6365.536, 6549.85, 6564.61, 6585.28, 6679.99556,  6718.29,
+    6732.67])*u.AA)
 # 5877.25, 7064.21, 7137.8,  7320.94, 7331.68
 
 slabs = [cube.with_spectral_unit(u.km/u.s, 'optical', wl).spectral_slab(-200*u.km/u.s, 200*u.km/u.s)
@@ -38,4 +39,4 @@ pcube = pyspeckit.Cube(cube=supercube, xarr=pxarr)
 pcube.fiteach(fittype='gaussian', guesses=[1/np.sqrt(np.pi), 10, 50.0],
               errmap=np.ones(supercube.shape[1:])/100., multicore=40)
 
-pcube.write_fit('velocity_fits_vac.fits', clobber=True)
+pcube.write_fit('velocity_fits_air.fits', clobber=True)
