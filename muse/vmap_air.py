@@ -1,3 +1,4 @@
+from astropy.io import fits
 from astropy import units as u
 import numpy as np
 import spectral_cube
@@ -30,27 +31,30 @@ wlslabs = {line:
            for line,wl in airlines.items()}
 
 for line,slab in wlslabs.items():
+    print "AA",line
     mom1 = slab.moment1(axis=0)
     mom1.write('moment1_{0}_angstroms.fits'.format(line), overwrite=True)
 mean_moment = np.mean([fits.getdata('moment1_{0}_angstroms.fits'.format(line))-airlines[line].value
                        for line in wlslabs], axis=0)
-fits.PrimaryHDU(data=mean_moment, header=fits.getheader('moment1_{0}_angstroms.fits'.format(line))).writeto('moment1_mean_deltaangstroms.fits')
+fits.PrimaryHDU(data=mean_moment, header=fits.getheader('moment1_{0}_angstroms.fits'.format(line))).writeto('moment1_mean_deltaangstroms.fits', clobber=True)
 
 # Cube velocity conversion should use vacuum wavelengths
 slabs = {line:
-         cube.with_spectral_unit(u.km/u.s, 'optical', wl)
+         cube.with_spectral_unit(u.km/u.s, velocity_convention='optical',
+                                 rest_value=wl*u.AA)
              .spectral_slab(-200*u.km/u.s, 250*u.km/u.s)
          for line,wl in lines.items()}
 
 for line,slab in slabs.items():
+    print "kms",line
     mom1 = slab.moment1(axis=0)
     mom1.write('moment1_{0}_kms.fits'.format(line), overwrite=True)
 mean_moment = np.mean([fits.getdata('moment1_{0}_kms.fits'.format(line)) for
                        line in slabs], axis=0)
-fits.PrimaryHDU(data=mean_moment, header=fits.getheader('moment1_{0}_kms.fits'.format(line))).writeto('moment1_mean_kms.fits')
+fits.PrimaryHDU(data=mean_moment, header=fits.getheader('moment1_{0}_kms.fits'.format(line))).writeto('moment1_mean_kms.fits', clobber=True)
 
-newcube_shape = (sum(s.shape[0] for s in slabs),) + slabs[0].shape[1:]
-newcube_spaxis = np.concatenate([s.spectral_axis for s in slabs]).value*u.km/u.s
+newcube_shape = (sum(s.shape[0] for s in slabs.values()),) + slabs[0].shape[1:]
+newcube_spaxis = np.concatenate([s.spectral_axis for s in slabs.values()]).value*u.km/u.s
 sortvect = newcube_spaxis.argsort()
 sortspaxis = newcube_spaxis[sortvect]
 
