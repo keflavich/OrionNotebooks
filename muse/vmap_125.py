@@ -4,24 +4,12 @@ import numpy as np
 import spectral_cube
 import pyspeckit
 from spectral_cube.spectral_axis import vac_to_air
+from lines import lines
 
 cube = spectral_cube.SpectralCube.read('CUBEec_nall.fits', hdu=1)
 cont = cube.spectral_slab(6380*u.AA, 6500*u.AA).apply_numpy_function(np.mean, axis=0)
 cube._data -= cont
 
-# Header says AWAV: air wavelengths.  It also says the coordinates are barycentric.
-# V_LSR = V_helio - 18 km/s according to Garcia-Diaz et al 2008
-# These are the lines' vacuum wavelengths
-lines = {'OI6300': 6302.046,
-         'SIII6313': 6313.8,
-         'OI6363': 6365.536,
-         'NII6548': 6549.85,
-         'HAlpha': 6564.61,
-         'NII6584': 6585.28,
-         'HeI6678': 6679.99556,
-         'SII6716': 6718.29,
-         'SII6731': 6732.67,
-}
 airlines = {line: vac_to_air(wl*u.AA) for line,wl in lines.items()}
 #wavelengths = spectral_cube.spectral_axis.vac_to_air(np.array(lines.values())*u.AA)
 # 5877.25, 7064.21, 7137.8,  7320.94, 7331.68

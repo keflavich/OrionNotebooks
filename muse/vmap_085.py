@@ -4,6 +4,7 @@ import numpy as np
 import spectral_cube
 import pyspeckit
 from spectral_cube.spectral_axis import vac_to_air
+from lines import lines
 
 cube = spectral_cube.SpectralCube.read('DATACUBEFINALuser_20140216T010259_78380e1d.fits', hdu=1)
 cont = cube.spectral_slab(6380*u.AA, 6500*u.AA).apply_numpy_function(np.mean, axis=0)
