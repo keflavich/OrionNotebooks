@@ -2,6 +2,7 @@ import numpy as np
 from astropy import units as u
 from astropy.io import fits
 import spectral_cube
+from lines import lines
 
 coordinate = [1008,655]
 
@@ -22,20 +23,7 @@ def examine_spectra():
     sp1 = pyspeckit.Spectrum("spectrum_{0}_{1}_085.fits".format(*coordinate))
     sp2 = pyspeckit.Spectrum("spectrum_{0}_{1}_125.fits".format(*coordinate))
 
-    wavelengths = (np.array([6302.046, 6313.8, 6365.536, 6549.85, 6564.61, 6585.28,
-                             6679.99556, 6718.29, 6732.67, 9231.547, 9017.385, 8865.32,
-                             8752.86, 8547.73, 8600.75, 8667.40, 4862.69,
-                             5008.24, 4960.3,
-                             5877.3,
-                             5756.24,
-                             7137.8,
-                             7753.2,
-                             9071.1,
-                             #7321.002, # blends
-                             #7331.69, # blends
-                             7283.355,
-                             7067.138,
-                            ])*u.AA).value
+    wavelengths = (np.array(lines.values())*u.AA).value
     sp1.xarr.convert_to_unit('angstroms')
     sp2.xarr.convert_to_unit('angstroms')
     sp1.plotter()
@@ -116,5 +104,11 @@ def examine_spectra():
     fitvals = np.array(fitvals)
     pl.errorbar(fitvals[:,0], fitvals[:,1], yerr=fitvals[:,2], linestyle='none')
     pl.errorbar(fitvals[:,0], fitvals[:,3], yerr=fitvals[:,4], linestyle='none')
+
+    vmap_125 = fits.getdata('velocity_fits_125.fits')
+    v125,e125 = vmap_125[1,coordinate[1],coordinate[0]],vmap_125[4,coordinate[1],coordinate[0]]
+    pl.axhline(v125, linestyle='-', color='k')
+    pl.axhline(v125-e125, linestyle='--', color='k')
+    pl.axhline(v125+e125, linestyle='--', color='k')
 
     return locals()
