@@ -3,9 +3,10 @@ from astropy import units as u
 from astropy.io import fits
 import spectral_cube
 from lines import lines
+import pyregion
 
-coordinate = [1008,655]
 
+coordinate = [1008,655] # 05h35m15.338s -05d23m59.9159s
 def extract_spectra():
     cube_085 = spectral_cube.SpectralCube.read('DATACUBEFINALuser_20140216T010259_78380e1d.fits', hdu=1).with_spectral_unit(u.AA)
     cube_125 = spectral_cube.SpectralCube.read('CUBEec_nall.fits', hdu=1).with_spectral_unit(u.AA)
@@ -16,17 +17,32 @@ def extract_spectra():
     sp085.write("spectrum_{0}_{1}_085.fits".format(*coordinate), overwrite=True)
     sp125.write("spectrum_{0}_{1}_125.fits".format(*coordinate), overwrite=True)
 
+def extract_b00():
+    regions = pyregion.open('B00.reg')
 
-def examine_spectra():
+    cube_085 = spectral_cube.SpectralCube.read('DATACUBEFINALuser_20140216T010259_78380e1d.fits', hdu=1).with_spectral_unit(u.AA)
+    cube_125 = spectral_cube.SpectralCube.read('CUBEec_nall.fits', hdu=1).with_spectral_unit(u.AA)
+
+    sp085 = cube_085.subcube_from_ds9region(regions).sum(axis=(1,2))
+    sp125 = cube_125.subcube_from_ds9region(regions).sum(axis=(1,2))
+
+    sp085.write("spectrum_B00_085.fits", overwrite=True)
+    sp125.write("spectrum_B00_125.fits", overwrite=True)
+
+
+def examine_spectra(sp085filename="spectrum_{0}_{1}_085.fits".format(*coordinate), 
+                    sp125filename="spectrum_{0}_{1}_125.fits".format(*coordinate), 
+                   ):
     import pylab as pl
     import pyspeckit
-    sp1 = pyspeckit.Spectrum("spectrum_{0}_{1}_085.fits".format(*coordinate))
-    sp2 = pyspeckit.Spectrum("spectrum_{0}_{1}_125.fits".format(*coordinate))
+    sp1 = pyspeckit.Spectrum(sp085filename)
+    sp2 = pyspeckit.Spectrum(sp125filename)
 
     wavelengths = (np.array(lines.values())*u.AA).value
     sp1.xarr.convert_to_unit('angstroms')
     sp2.xarr.convert_to_unit('angstroms')
-    sp1.plotter()
+    pl.figure(1).clf()
+    sp1.plotter(figure=pl.figure(1))
     sp2.plotter(axis=sp1.plotter.axis, color='b', clear=False)
     sp1.plotter.line_ids([str(x) for x in range(len(wavelengths))],
                          wavelengths, xval_units='angstroms')
@@ -94,7 +110,8 @@ def examine_spectra():
 
     pl.figure(3).clf()
     sp1new.plotter(figure=pl.figure(3), marker='.', linestyle='none')
-    sp2new.plotter(axis=sp1new.plotter.axis, clear=False, color='b', marker='.', linestyle='none')
+    sp2new.plotter(axis=sp1new.plotter.axis, clear=False, color='b',
+                   marker='.', linestyle='none')
     sp1new.specfit()
     sp2new.specfit()
     print sp1new.specfit.parinfo
@@ -102,13 +119,19 @@ def examine_spectra():
 
     pl.figure(5).clf()
     fitvals = np.array(fitvals)
-    pl.errorbar(fitvals[:,0], fitvals[:,1], yerr=fitvals[:,2], linestyle='none')
-    pl.errorbar(fitvals[:,0], fitvals[:,3], yerr=fitvals[:,4], linestyle='none')
+    pl.errorbar(fitvals[:,0], fitvals[:,1], yerr=fitvals[:,2], color='k', linestyle='none', label='0.85$\AA$')
+    pl.errorbar(fitvals[:,0], fitvals[:,3], yerr=fitvals[:,4], color='r', linestyle='none', label='1.25$\AA$')
 
     vmap_125 = fits.getdata('velocity_fits_125.fits')
     v125,e125 = vmap_125[1,coordinate[1],coordinate[0]],vmap_125[4,coordinate[1],coordinate[0]]
-    pl.axhline(v125, linestyle='-', color='k')
-    pl.axhline(v125-e125, linestyle='--', color='k')
-    pl.axhline(v125+e125, linestyle='--', color='k')
+    pl.axhline(v125, linestyle='--', color='r')
+    #pl.axhline(v125-e125, linestyle='--', color='k')
+    #pl.axhline(v125+e125, linestyle='--', color='k')
+
+    vmap_085 = fits.getdata('velocity_fits_085.fits')
+    v085,e085 = vmap_085[1,coordinate[1],coordinate[0]],vmap_085[4,coordinate[1],coordinate[0]]
+    pl.axhline(v085, linestyle='--', color='k')
+    #pl.axhline(v085-e085, linestyle='--', color='k')
+    #pl.axhline(v085+e085, linestyle='--', color='k')
 
     return locals()
