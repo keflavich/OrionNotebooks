@@ -22,9 +22,21 @@ def extract_b00():
 
     cube_085 = spectral_cube.SpectralCube.read('DATACUBEFINALuser_20140216T010259_78380e1d.fits', hdu=1).with_spectral_unit(u.AA)
     cube_125 = spectral_cube.SpectralCube.read('CUBEec_nall.fits', hdu=1).with_spectral_unit(u.AA)
+    reg_085 = cube_085.subcube_from_ds9region(regions)
+    reg_125 = cube_125.subcube_from_ds9region(regions)
 
-    sp085 = cube_085.subcube_from_ds9region(regions).sum(axis=(1,2))
-    sp125 = cube_125.subcube_from_ds9region(regions).sum(axis=(1,2))
+    sp085 = reg_085.sum(axis=(1,2))
+    sp125 = reg_125.sum(axis=(1,2))
+    # temporary workaround:
+    if not isinstance(sp085, spectral_cube.spectral_cube.OneDSpectrum):
+        x = sp085
+        sp085 = cube_085[:,0,0]
+        sp085 = spectral_cube.spectral_cube.OneDSpectrum(x, unit=sp085.unit, copy=False,
+                                           wcs=sp085.wcs, meta=sp085.meta)
+        x = sp125
+        sp125 = cube_125[:,0,0]
+        sp125 = spectral_cube.spectral_cube.OneDSpectrum(x, unit=sp125.unit, copy=False,
+                                           wcs=sp125.wcs, meta=sp125.meta)
 
     sp085.write("spectrum_B00_085.fits", overwrite=True)
     sp125.write("spectrum_B00_125.fits", overwrite=True)
@@ -32,6 +44,8 @@ def extract_b00():
 
 def examine_spectra(sp085filename="spectrum_{0}_{1}_085.fits".format(*coordinate), 
                     sp125filename="spectrum_{0}_{1}_125.fits".format(*coordinate), 
+                    coordinate=coordinate,
+                    ymax=1.4e7,
                    ):
     import pylab as pl
     import pyspeckit
@@ -42,8 +56,8 @@ def examine_spectra(sp085filename="spectrum_{0}_{1}_085.fits".format(*coordinate
     sp1.xarr.convert_to_unit('angstroms')
     sp2.xarr.convert_to_unit('angstroms')
     pl.figure(1).clf()
-    sp1.plotter(figure=pl.figure(1))
-    sp2.plotter(axis=sp1.plotter.axis, color='b', clear=False)
+    sp1.plotter(figure=pl.figure(1), ymax=ymax)
+    sp2.plotter(axis=sp1.plotter.axis, color='b', clear=False, ymax=ymax)
     sp1.plotter.line_ids([str(x) for x in range(len(wavelengths))],
                          wavelengths, xval_units='angstroms')
     cont1 = sp1.slice(6380, 6500, units='angstrom').data.mean()
@@ -122,16 +136,29 @@ def examine_spectra(sp085filename="spectrum_{0}_{1}_085.fits".format(*coordinate
     pl.errorbar(fitvals[:,0], fitvals[:,1], yerr=fitvals[:,2], color='k', linestyle='none', label='0.85$\AA$')
     pl.errorbar(fitvals[:,0], fitvals[:,3], yerr=fitvals[:,4], color='r', linestyle='none', label='1.25$\AA$')
 
-    vmap_125 = fits.getdata('velocity_fits_125.fits')
-    v125,e125 = vmap_125[1,coordinate[1],coordinate[0]],vmap_125[4,coordinate[1],coordinate[0]]
+    if isinstance(coordinate, pyregion.ShapeList):
+        vmap_125 = fits.open('velocity_fits_125.fits')
+        mask_125 = coordinate.get_mask(hdu=vmap_125[0])
+        vmap_085 = fits.open('velocity_fits_085.fits')
+        mask_085 = coordinate.get_mask(hdu=vmap_085[0])
+        v125 = vmap_125[1,mask_125].mean()
+        v085 = vmap_085[1,mask_085].mean()
+
+    else:
+        vmap_125 = fits.getdata('velocity_fits_125.fits')
+        v125,e125 = vmap_125[1,coordinate[1],coordinate[0]],vmap_125[4,coordinate[1],coordinate[0]]
+
+        vmap_085 = fits.getdata('velocity_fits_085.fits')
+        v085,e085 = vmap_085[1,coordinate[1],coordinate[0]],vmap_085[4,coordinate[1],coordinate[0]]
+
     pl.axhline(v125, linestyle='--', color='r')
     #pl.axhline(v125-e125, linestyle='--', color='k')
     #pl.axhline(v125+e125, linestyle='--', color='k')
-
-    vmap_085 = fits.getdata('velocity_fits_085.fits')
-    v085,e085 = vmap_085[1,coordinate[1],coordinate[0]],vmap_085[4,coordinate[1],coordinate[0]]
     pl.axhline(v085, linestyle='--', color='k')
     #pl.axhline(v085-e085, linestyle='--', color='k')
     #pl.axhline(v085+e085, linestyle='--', color='k')
+    pl.legend(loc='best')
+    pl.xlabel("Wavelength ($\AA$)")
+    pl.ylabel("Flux ($10^{-20}$ erg s$^{-1}$ cm$^{-2} \AA^{-1}$")
 
     return locals()

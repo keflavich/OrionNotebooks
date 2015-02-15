@@ -30,3 +30,12 @@ lines = {'OI6300': 6302.046,
          'OIII5008': 5008.24,
          'OII4960': 4960.3,
 }
+
+from astropy.table import Table
+import numpy as np
+t = Table.read('b00_lines.ipac', format='ascii.ipac')
+# select bright lines >4600 ang
+mask = (t['I6678_obs_7'] > 0.1) & (t['ID_Wavelength_A_2'] > 4600)
+names = np.array(["{0}{1}".format(id, wl).replace(" ","") for id,wl in
+         zip(t['ID_3'],t['ID_Wavelength_A_2'])])
+b00lines_air = dict(zip(names[mask], t['ID_Wavelength_A_2'][mask],))
