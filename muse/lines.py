@@ -39,3 +39,4 @@ mask = (t['I6678_obs_7'] > 0.1) & (t['ID_Wavelength_A_2'] > 4600)
 names = np.array(["{0}{1}".format(id, wl).replace(" ","") for id,wl in
          zip(t['ID_3'],t['ID_Wavelength_A_2'])])
 b00lines_air = dict(zip(names[mask], t['ID_Wavelength_A_2'][mask],))
+b00lines_measured = dict(zip(names[mask], t['Rest_Wavelength_A_1'][mask],))
