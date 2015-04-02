@@ -29,6 +29,7 @@ lines = {'OI6300': 6302.046,
          'HeI5877':5877.3,
          'OIII5008': 5008.24,
          'OII4960': 4960.3,
+         #'FeII8617': 8717,
 }
 
 from astropy.table import Table
@@ -40,3 +41,11 @@ names = np.array(["{0}{1}".format(id, wl).replace(" ","") for id,wl in
          zip(t['ID_3'],t['ID_Wavelength_A_2'])])
 b00lines_air = dict(zip(names[mask], t['ID_Wavelength_A_2'][mask],))
 b00lines_measured = dict(zip(names[mask], t['Rest_Wavelength_A_1'][mask],))
+
+feii_mask = np.array([nm in ('Fe II','[Fe II]') for nm in t['ID_3']]) & (t['I6678_obs_7'] > 0.01) & (t['ID_Wavelength_A_2'] > 4600)
+b00feiilines_air = dict(zip(names[feii_mask], t['ID_Wavelength_A_2'][feii_mask],))
+b00feiilines_measured = dict(zip(names[feii_mask], t['Rest_Wavelength_A_1'][feii_mask],))
+
+fei_mask = np.array([nm in ('Fe I','Fe I]') for nm in t['ID_3']]) & (t['ID_Wavelength_A_2'] > 4600)
+b00feilines_air = dict(zip(names[fei_mask], t['ID_Wavelength_A_2'][fei_mask],))
+b00feilines_measured = dict(zip(names[fei_mask], t['Rest_Wavelength_A_1'][fei_mask],))
