@@ -305,9 +305,9 @@ linevis0 = 'spw0.ms.contsub'
 
 lineimagename = 'spw0_co21' # name of line image
 
-start='-141km/s' # start velocity. See science goals for appropriate value.
+start='-240km/s' # start velocity. See science goals for appropriate value.
 width='1.5km/s' # velocity width. See science goals.
-nchan = 200  # number of channels. See science goals for appopriate value.
+nchan = 300  # number of channels. See science goals for appopriate value.
 outframe='lsrk' # velocity reference frame. See science goals.
 veltype='radio' # velocity type. See science goals.
 restfreq='230.538GHz' # rest frequency of primary line of interest. See science goals.
@@ -389,9 +389,9 @@ linevis2 = 'spw2.ms.contsub'
 
 lineimagename = 'spw2_sio54' # name of line image
 
-start='-141km/s' # start velocity. See science goals for appropriate value.
+start='-240km/s' # start velocity. See science goals for appropriate value.
 width='1.5km/s' # velocity width. See science goals.
-nchan = 200  # number of channels. See science goals for appopriate value.
+nchan = 300  # number of channels. See science goals for appopriate value.
 outframe='lsrk' # velocity reference frame. See science goals.
 veltype='radio' # velocity type. See science goals.
 restfreq='217.10498GHz' # rest frequency of primary line of interest. See science goals.
