@@ -131,6 +131,7 @@ concat(vis=sourcevislist,
 if not os.path.exists('calibrated_final.ms'):
     sourcevislist = glob.glob("*.ms.split.cal.source")
     regridvis='source_calibrated_regrid.ms'
+    print("Concatenating {0} into {1}".format(sourcevislist, regridvis))
 
     rmtables(regridvis)
     os.system('rm -rf ' + regridvis + '.flagversions')
@@ -294,6 +295,7 @@ split(vis=finalvis,
 
 contvis='calibrated_final_cont.ms'
 if not os.path.exists(contvis):
+    print("Creating {0} by flagging data.".format(contvis))
     # Set continuum spws here based on plotms output.
     contspws = '0~23'
 
@@ -726,6 +728,7 @@ split(vis=contvis,
 
 linevis = finalvis+'.contsub'
 if not os.path.exists(linevis):
+    print("Fitting continuum to create {0}".format(linevis))
 
     # line-free channel for fitting continuum
     fitspw='0:0~149;401~779;841~959;991~1019;1091~1549;1571~1609;1691~1719;1781~1919,' + \
