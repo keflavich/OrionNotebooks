@@ -26,7 +26,7 @@ ncubes_per_window = 20
 finalvis='calibrated_final.ms'
 linevis = finalvis+'.contsub'
 
-for spwnum in '0123':
+for spwnum in '0231':
     print "# running clean on all lines in spw{0}".format(spwnum)
     spw = spws[int(spwnum)]
     nchans_total_thiscube = nchans_total[int(spwnum)]
