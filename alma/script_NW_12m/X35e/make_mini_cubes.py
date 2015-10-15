@@ -4,7 +4,7 @@ from spectral_cube import SpectralCube
 from lines import lines
 
 
-for spwnum in (0,1,2):
+for spwnum in (0,1,2,3):
     cube = SpectralCube.read('Orion_NW_12m_spw{0}_lines.fits'.format(spwnum))
 
     for line,frq in lines.items():
