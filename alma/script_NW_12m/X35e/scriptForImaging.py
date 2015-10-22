@@ -442,7 +442,7 @@ for ext in ['.flux','.image','.mask','.model','.pbcor','.psf','.residual','.flux
 
 clean(vis=contvis,
       imagename=contimagename,
-      field=field,
+      field='OMC1_NW',
       phasecenter=phasecenter, # uncomment if mosaic.
       mode='mfs',
       psfmode='clark',
@@ -454,6 +454,7 @@ clean(vis=contvis,
       threshold = threshold,
       interactive = True,
       imagermode = imagermode)
+exportfits(contimagename, contimagename+".fits", dropdeg=True, overwrite=True)
 
 # If interactively cleaning (interactive=True), then note number of
 # iterations at which you stop for the PI. This number will help the
