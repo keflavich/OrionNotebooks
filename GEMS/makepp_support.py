@@ -1,8 +1,6 @@
 #pylint: disable-all
 import numpy as np
 import os
-import AG_fft_tools
-import agpy
 import astropy.nddata
 from astropy.io import fits as pyfits
 import time
