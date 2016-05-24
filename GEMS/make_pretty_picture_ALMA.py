@@ -166,7 +166,7 @@ logii=1
 
 
 for h2x,fex,almaB_,almaR_,txt in ((h2normed,fenormed,almablue,almared,"normed_"),): #(h2,fe,ks,""),(h2unsharp,feunsharp,ks,"unsharp_")):
-    for downsample,size in ((4,'small'),):#(1,'large')):
+    for downsample,size in ((4,'small'),(1,'large')):
 
         avm = pyavm.AVM.from_wcs(mywcs[::downsample, ::downsample])
 
@@ -274,6 +274,9 @@ for h2x,fex,almaB_,almaR_,txt in ((h2normed,fenormed,almablue,almared,"normed_")
         im = PIL.Image.fromarray(im.astype('uint8'))
         im.save(prefix+'Trapezium_GEMS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size))
 
+        output = prefix+'Trapezium_GEMS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size)
+        avm.embed(output, output)
+
         cropped = PIL.Image.fromarray((blueorange[yslice, xslice]*255).astype('uint8')[::-1,:])
         cropped = ImageEnhance.Contrast(cropped).enhance(1.5)
         cropped = ImageEnhance.Brightness(cropped).enhance(1.5)
@@ -281,6 +284,9 @@ for h2x,fex,almaB_,almaR_,txt in ((h2normed,fenormed,almablue,almared,"normed_")
         cropped[cropped>255] = 255
         cropped_im = PIL.Image.fromarray(cropped.astype('uint8'))
         cropped_im.save(prefix+'cropped_Trapezium_GEMS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size))
+
+        output = prefix+'cropped_Trapezium_GEMS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size)
+        avm.embed(output, output)
 
 #smallshape = ks[::4,::4].shape
 #rgb_ha_float = np.ones([smallshape[0],smallshape[1],3],dtype='float')
