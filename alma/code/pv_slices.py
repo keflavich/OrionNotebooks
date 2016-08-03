@@ -34,12 +34,18 @@ paths = [ coordinates.SkyCoord([center.ra+dx*cos(theta),
 
 
 cube = SpectralCube.read('FITS/ALMA_Outflow_b6_12M_12CO.fits')
+cube = SpectralCube.read('FITS/Orion_NWSE_12CO2-1_merge_7m_12m.image.fits')
+mask = (cube.spectral_axis < 3*u.km/u.s) | (cube.spectral_axis > 14.5*u.km/u.s)
+cube = cube.with_mask(mask[:,None,None])
 mx = cube.max(axis=0)
+med = cube.median(axis=0)
+mx = mx - med
+
 
 pl.close(1)
 
 for ii,(path,theta) in enumerate(zip(paths, angles)):
-    outfilename = "pvdiagrams/NE_rotation_{0:0.4g}.fits".format(theta)
+    outfilename = "pvdiagrams/NWSE_rotation_{0:0.4g}.fits".format(theta)
     if os.path.exists(outfilename):
         hdu = fits.open(outfilename)[0]
     else:
@@ -57,10 +63,10 @@ for ii,(path,theta) in enumerate(zip(paths, angles)):
     F2.show_lines([np.array([path.ra.deg, path.dec.deg])], color='r')
     F2.recenter(center.ra, center.dec, radius=(1.1*u.arcmin).to(u.deg).value)
 
-    F.save('pvdiagrams/NE_rotation_{0:04d}.png'.format(ii), dpi=300)
+    F.save('pvdiagrams/NWSE_rotation_{0:04d}.png'.format(ii), dpi=300)
 
 # command will be run from within pvdiagrams/
-cmd = "ffmpeg -y -i NE_rotation_%04d.png -c:v libx264 -pix_fmt yuv420p -vf scale=1024:768 -r 10 rotation_movie.mp4"
+cmd = "ffmpeg -y -i NWSE_rotation_%04d.png -c:v libx264 -pix_fmt yuv420p -vf scale=1024:768 -r 10 rotation_movie.mp4"
 import subprocess
 p = subprocess.Popen(cmd.split(), cwd='pvdiagrams/')
 p.wait()
