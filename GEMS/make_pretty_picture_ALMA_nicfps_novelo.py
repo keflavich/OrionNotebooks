@@ -170,6 +170,9 @@ logii=1
 
 
 for h2x,fex,almaB_,almaR_,txt in ((h2nicfps,None,almablue_nf,almared_nf,""),): #(h2,fe,ks,""),(h2unsharp,feunsharp,ks,"unsharp_")):
+
+    almaboth_nf = almaB_ + almaR_
+
     for downsample,size in ((4,'small'),(1,'large')):
 
         print("Downsample: ",downsample," size: ",size," style: ",txt)
@@ -190,6 +193,10 @@ for h2x,fex,almaB_,almaR_,txt in ((h2nicfps,None,almablue_nf,almared_nf,""),): #
             maxv = h2max
             logii = 1
         h2s[:,:,0] = logscale(h2x[::downsample,::downsample],xmin=minv,xmax=maxv,logexp=logii,toint=False)
+        h2_green = np.zeros([shape[0],shape[1],3],dtype='float')
+        h2_green[:,:,1] = h2s[:,:,0]
+        h2_blue = np.zeros([shape[0],shape[1],3],dtype='float')
+        h2_blue[:,:,2] = h2s[:,:,0]
         h2s_hsv = rgb_to_hsv(h2s)
         h2s_hsv[:,:,0] = 40/360.
         #h2s_hsv[:,:,0] = 70/360. # when feii is excluded
@@ -215,27 +222,21 @@ for h2x,fex,almaB_,almaR_,txt in ((h2nicfps,None,almablue_nf,almared_nf,""),): #
 
         # square cropping
         yslice,xslice = slice(1100,2600), slice(500,2000)
-        yslice,xslice = slice(int(428/downsample),int(838/downsample)), slice(int(345/downsample),int(745/downsample))
+        yslice,xslice = (slice(int(428/downsample),int(838/downsample)),
+                         slice(int(345/downsample),int(745/downsample)))
 
 
-        almaB_[np.isnan(almaB_)] = 0.0
-        almaR_[np.isnan(almaR_)] = 0.0
-        almaB = np.zeros([shape[0],shape[1],3],dtype='float')
-        almaB[:,:,0] = logscale(almaB_[::downsample,::downsample],
-                                xmin=almabluemin, xmax=almabluemax,
-                                logexp=almabluescale, toint=False)
-        almaR = np.zeros([shape[0],shape[1],3],dtype='float')
-        almaR[:,:,0] = logscale(almaR_[::downsample,::downsample],
-                                xmin=almaredmin, xmax=almaredmax,
-                                logexp=almaredscale, toint=False)
-        almaR_hsv = rgb_to_hsv(almaR)
-        almaB_hsv = rgb_to_hsv(almaB)
-        almaR_hsv[:,:,0] = 330/360.
-        almaB_hsv[:,:,0] = 190/360.
-        #almaR_hsv[:,:,0] = 340/360. # when feii is excluded
-        #almaB_hsv[:,:,0] = 180/360. # when feii is excluded
-        almaR = hsv_to_rgb(almaR_hsv)
-        almaB = hsv_to_rgb(almaB_hsv)
+
+        almaboth_nf[np.isnan(almaboth_nf)] = 0.0
+        almaboth_nf_rgb = np.zeros([shape[0],shape[1],3],dtype='float')
+        almaboth_nf_rgb[:,:,0] = logscale(almaboth_nf[::downsample,::downsample],
+                                       xmin=almabluemin, xmax=almabluemax,
+                                       logexp=almabluescale, toint=False)
+        almaboth_nf_red = almaboth_nf_rgb.copy()
+        almaboth_nf_hsv = rgb_to_hsv(almaboth_nf_rgb)
+        almaboth_nf_hsv[:,:,0] = 340/360.
+        almaboth_nf_rgb = hsv_to_rgb(almaboth_nf_hsv)
+
         #alma_red = alma
         #alma_hsv = rgb_to_hsv(alma)
         #alma_hsv[:,:,0] = 0/360.
@@ -244,26 +245,41 @@ for h2x,fex,almaB_,almaR_,txt in ((h2nicfps,None,almablue_nf,almared_nf,""),): #
         print("Downsample: ",downsample," size: ",size," style: ",txt)
         #print "Memory Check (ps): ",get_mem()/1024.**3
 
-        redblueorange = almaB+almaR+h2s_orange#+fes_blue
+        # redblueorange = almaB+almaR+h2s_orange#+fes_blue
+        redblueorange = almaboth_nf_rgb+h2s_orange+h2_blue
         redblueorange[redblueorange>1] = 1
+
+        redgreenblue = almaboth_nf_red + h2_green + h2_blue
+        redgreenblue[redgreenblue>1] = 1
+
         im = PIL.Image.fromarray((redblueorange*255).astype('uint8')[::-1,:])
-        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s.png' % (txt,size))
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s.png' % (txt,size))
         im = ImageEnhance.Contrast(im).enhance(1.5)
-        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast.png' % (txt,size))
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast.png' % (txt,size))
         im = ImageEnhance.Brightness(im).enhance(1.5)
-        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast_bright.png' % (txt,size))
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast_bright.png' % (txt,size))
+
+
+        im = PIL.Image.fromarray((redgreenblue*255).astype('uint8')[::-1,:])
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redgreenblue_ALMA_novelo_%s%s.png' % (txt,size))
+        im = ImageEnhance.Contrast(im).enhance(1.5)
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redgreenblue_ALMA_novelo_%s%s_contrast.png' % (txt,size))
+        im = ImageEnhance.Brightness(im).enhance(1.5)
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redgreenblue_ALMA_novelo_%s%s_contrast_bright.png' % (txt,size))
+
+
 
         cropped_im = PIL.Image.fromarray((redblueorange[yslice, xslice]*255).astype('uint8')[::-1,:])
-        cropped_im.save(prefix+'cropped_Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s.png' % (txt,size))
+        cropped_im.save(prefix+'cropped_Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s.png' % (txt,size))
 
         print("Downsample: ",downsample," size: ",size," style: ",txt)
         #print "Memory Check (ps): ",get_mem()/1024.**3
 
-        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s.png' % (txt,size)
+        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s.png' % (txt,size)
         avm.embed(output, output)
-        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast.png' % (txt,size)
+        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast.png' % (txt,size)
         avm.embed(output, output)
-        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast_bright.png' % (txt,size)
+        output = prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast_bright.png' % (txt,size)
         avm.embed(output, output)
 
         blueorange = h2s_orange#+fes_blue
@@ -271,18 +287,18 @@ for h2x,fex,almaB_,almaR_,txt in ((h2nicfps,None,almablue_nf,almared_nf,""),): #
         im1 = PIL.Image.fromarray((blueorange*255).astype('uint8')[::-1,:])
         im1 = ImageEnhance.Contrast(im1).enhance(1.5)
         im1 = ImageEnhance.Brightness(im1).enhance(1.5)
-        im = (np.array(im1, dtype='float') + (almaB+almaR)[::-1,:,:]*256)
+        im = (np.array(im1, dtype='float') + (almaboth_nf_rgb)[::-1,:,:]*256)
         im[im>255] = 255
         im = PIL.Image.fromarray(im.astype('uint8'))
-        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size))
+        im.save(prefix+'Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast_bright2.png' % (txt,size))
 
         cropped = PIL.Image.fromarray((blueorange[yslice, xslice]*255).astype('uint8')[::-1,:])
         cropped = ImageEnhance.Contrast(cropped).enhance(1.5)
         cropped = ImageEnhance.Brightness(cropped).enhance(1.5)
-        cropped = (np.array(cropped, dtype='float') + (almaB+almaR)[yslice,xslice][::-1,:,:]*256)
+        cropped = (np.array(cropped, dtype='float') + (almaboth_nf_rgb)[yslice,xslice][::-1,:,:]*256)
         cropped[cropped>255] = 255
         cropped_im = PIL.Image.fromarray(cropped.astype('uint8'))
-        cropped_im.save(prefix+'cropped_Trapezium_NICFPS_mosaic_redblueorange_ALMA_%s%s_contrast_bright2.png' % (txt,size))
+        cropped_im.save(prefix+'cropped_Trapezium_NICFPS_mosaic_redblueorange_ALMA_novelo_%s%s_contrast_bright2.png' % (txt,size))
 
 #smallshape = ks[::4,::4].shape
 #rgb_ha_float = np.ones([smallshape[0],smallshape[1],3],dtype='float')
