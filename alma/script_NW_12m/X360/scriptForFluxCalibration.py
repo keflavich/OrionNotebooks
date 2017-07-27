@@ -1,7 +1,7 @@
 import re
 
-if re.search('^4.3.0', casadef.casa_version) == None:
- sys.exit('ERROR: PLEASE USE THE SAME VERSION OF CASA THAT YOU USED FOR GENERATING THE SCRIPT: 4.3.0')
+#if re.search('^4.3.0', casadef.casa_version) == None:
+# sys.exit('ERROR: PLEASE USE THE SAME VERSION OF CASA THAT YOU USED FOR GENERATING THE SCRIPT: 4.3.0')
 
 
 print "# Concatenating the data."
