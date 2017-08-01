@@ -187,7 +187,10 @@ if (len(pprasdms)>0):
 
     print 'Processing the ASDMs ', pprasdms, ' using pipeline restore.'
 
-    os.mkdir('rawdata')
+    try:
+        os.mkdir('rawdata')
+    except OSError:
+        print("Skipping mkdir rawdata")
     os.chdir('rawdata')
     for asdmname in pprasdms:
         if not os.path.exists('../../raw/'+asdmname+'.asdm.sdm'):
@@ -199,7 +202,10 @@ if (len(pprasdms)>0):
         
     os.system('ln -sf ../calibration products')
 
-    os.mkdir('working')
+    try:
+        os.mkdir('working')
+    except OSError:
+        print("Skipping mkdir working")
     os.chdir('working')
 
     print "now processing ", pscriptnames[0]
