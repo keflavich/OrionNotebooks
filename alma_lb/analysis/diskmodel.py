@@ -101,7 +101,6 @@ for fn, freq, band, thresh in [#('Orion_SourceI_B6_continuum_r-2_longbaselines_S
     ptsrc_amp_value = data[int(ptsrcy), int(ptsrcx)]
     print("Point source amplitude data value: {0}".format(ptsrc_amp_value))
     print()
-
     if thresh is not None:
         # mask out low pixels: see what happens if we only fit the stuff we
         # *really* believe.
@@ -357,7 +356,6 @@ for fn, freq, band, thresh in [#('Orion_SourceI_B6_continuum_r-2_longbaselines_S
     print()
 
     bestdiskmod_refit = model(**result6.params)
-
     print("For comparison, the original smoothed linear fit: ")
     result2.params.pretty_print()
     print("red Chi^2: {0:0.3g}".format(result2.redchi))
@@ -481,7 +479,6 @@ for fn, freq, band, thresh in [#('Orion_SourceI_B6_continuum_r-2_longbaselines_S
                                          fitted_diskends_mod4.icrs.dec.deg[0],
                                          fitted_diskends_mod4.icrs.ra.deg[1],
                                          fitted_diskends_mod4.icrs.dec.deg[1],))
-
     # compute offset from point source to disk center along the disk axis angle
     assert ptsrc_diskcen_sep < 0.1*u.arcsec
     sep_projected = ptsrc_diskcen_sep * np.abs(np.cos(posang-90*u.deg))
@@ -774,7 +771,6 @@ for fn, freq, band, thresh in [#('Orion_SourceI_B6_continuum_r-2_longbaselines_S
     cb.ax.yaxis.set_label_position("left")
     cb2.set_ylabel('$T_B$ [K]')
 
-
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -836,8 +832,6 @@ for fn, freq, band, thresh in [#('Orion_SourceI_B6_continuum_r-2_longbaselines_S
     cb2.set_position(pos)
     cb.ax.yaxis.set_label_position("left")
     cb2.set_ylabel('$T_B$ [K]')
-
-
     #ax.set_xticks([])
     #ax.set_yticks([])
     ax.set_xlabel("RA offset (\")")
